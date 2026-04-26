@@ -1,13 +1,27 @@
-import { useState } from 'react'
+import { useState, useRef } from 'react'
 import { motion } from 'framer-motion'
 import { useInView } from './useInView'
-import { FiSend, FiGithub, FiLinkedin, FiMail, FiCheckCircle } from 'react-icons/fi'
+import { FiSend, FiGithub, FiLinkedin, FiMail, FiCheckCircle, FiAlertCircle } from 'react-icons/fi'
+import emailjs from '@emailjs/browser'
+
+// ─── EmailJS config ──────────────────────────────────────────────────────────
+// 1. Sign up free at https://www.emailjs.com
+// 2. Create an Email Service (Gmail) → copy Service ID below
+// 3. Create an Email Template with variables {{from_name}}, {{reply_to}}, {{message}}
+//    → set "To Email" to martmwagambo2000@gmail.com → copy Template ID below
+// 4. Go to Account → API Keys → copy your Public Key below
+const EMAILJS_SERVICE_ID  = 'YOUR_SERVICE_ID'   // e.g. 'service_abc123'
+const EMAILJS_TEMPLATE_ID = 'YOUR_TEMPLATE_ID'  // e.g. 'template_xyz456'
+const EMAILJS_PUBLIC_KEY  = 'YOUR_PUBLIC_KEY'   // e.g. 'AbCdEfGhIjKlMnOp'
+// ─────────────────────────────────────────────────────────────────────────────
 
 export default function Contact() {
   const [ref, inView] = useInView({ threshold: 0.15 })
+  const formRef = useRef(null)
   const [form, setForm] = useState({ name: '', email: '', message: '' })
   const [sent, setSent] = useState(false)
   const [loading, setLoading] = useState(false)
+  const [error, setError] = useState('')
 
   const handleChange = (e) =>
     setForm({ ...form, [e.target.name]: e.target.value })
@@ -15,11 +29,17 @@ export default function Contact() {
   const handleSubmit = (e) => {
     e.preventDefault()
     setLoading(true)
-    // Simulate send (no backend wired)
-    setTimeout(() => {
-      setLoading(false)
-      setSent(true)
-    }, 1200)
+    setError('')
+
+    emailjs.sendForm(EMAILJS_SERVICE_ID, EMAILJS_TEMPLATE_ID, formRef.current, EMAILJS_PUBLIC_KEY)
+      .then(() => {
+        setLoading(false)
+        setSent(true)
+      })
+      .catch(() => {
+        setLoading(false)
+        setError('Something went wrong. Please try again or email me directly.')
+      })
   }
 
   const slideIn = (delay = 0) => ({
@@ -143,7 +163,7 @@ export default function Contact() {
                   </button>
                 </motion.div>
               ) : (
-                <form onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
+                <form ref={formRef} onSubmit={handleSubmit} className="flex flex-col gap-5" noValidate>
                   <div className="grid sm:grid-cols-2 gap-5">
                     <div className="flex flex-col gap-1.5">
                       <label htmlFor="contact-name" className="text-xs font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wider">
@@ -151,7 +171,7 @@ export default function Contact() {
                       </label>
                       <input
                         id="contact-name"
-                        name="name"
+                        name="from_name"
                         type="text"
                         required
                         placeholder="Your name"
@@ -169,7 +189,7 @@ export default function Contact() {
                       </label>
                       <input
                         id="contact-email"
-                        name="email"
+                        name="reply_to"
                         type="email"
                         required
                         placeholder="your@email.com"
@@ -219,6 +239,19 @@ export default function Contact() {
                       </>
                     )}
                   </button>
+
+                  {/* Error message */}
+                  {error && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -6 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="flex items-center gap-2 p-3 rounded-xl bg-red-50 dark:bg-red-900/20
+                                 border border-red-200 dark:border-red-800 text-red-600 dark:text-red-400 text-sm"
+                    >
+                      <FiAlertCircle size={15} className="flex-shrink-0" />
+                      {error}
+                    </motion.div>
+                  )}
                 </form>
               )}
             </div>

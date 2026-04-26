@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { motion, useAnimationControls } from 'framer-motion'
-import { FiArrowDown, FiGithub, FiLinkedin } from 'react-icons/fi'
+import { FiArrowDown, FiGithub, FiLinkedin, FiDownload } from 'react-icons/fi'
 
 /* ── floating card animation ── */
 const floatY = {
@@ -111,6 +111,18 @@ export default function Hero() {
               >
                 Contact Me
               </button>
+              <a
+                href="/martin-cv.pdf"
+                download="Martin_Mwagambo_CV.pdf"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold
+                           border border-green-300 dark:border-green-700 text-green-700 dark:text-green-400
+                           bg-green-50 dark:bg-green-900/20
+                           hover:bg-green-100 dark:hover:bg-green-900/40 hover:border-green-400
+                           transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                <FiDownload size={15} />
+                Download CV
+              </a>
             </div>
 
             <div className="flex items-center gap-4 pt-2">
